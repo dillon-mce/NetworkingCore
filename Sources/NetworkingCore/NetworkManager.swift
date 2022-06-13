@@ -34,16 +34,20 @@ public class NetworkManager {
     /// - Parameters:
     ///   - path: The path to request
     ///   - parameters: Query parameters to apply to the request
+    ///   - method: HTTP Method to use for the request
     ///   - requestPlugins: A collection of plugins to apply to the request before it is made.
     /// - Returns: The raw data returned from the request
     public func request(path: String,
-                 parameters: [String: String] = [:],
-                 plugins requestPlugins: PluginCollection<URLRequest> = .init()) async throws -> Data {
+                        parameters: [String: String] = [:],
+                        method: HTTPMethod = .get,
+                        plugins requestPlugins: PluginCollection<URLRequest> = .init()) async throws -> Data {
         guard let requestURL = baseURL.appendingPathComponent(path).with(parameters: parameters) else {
             throw Error.invalidURLComponents
         }
         let rawRequest = URLRequest(url: requestURL)
-        let request = requestPlugins.combining(globalRequestPlugins).apply(to: rawRequest)
+        var plugins = globalRequestPlugins
+        plugins.addModifier { $0.httpMethod = method.rawValue }
+        let request = plugins.combining(requestPlugins).apply(to: rawRequest)
         let (data, _) = try await session.data(for: request)
         return data
     }

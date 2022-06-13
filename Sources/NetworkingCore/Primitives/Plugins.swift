@@ -25,8 +25,8 @@ public struct PluginCollection<Value> {
     }
 
     public func combining(_ other: PluginCollection<Value>) -> PluginCollection<Value> {
-        var mutable = other
-        plugins.forEach { mutable.add($0) }
+        var mutable = self
+        other.plugins.forEach { mutable.add($0) }
         return mutable
     }
 

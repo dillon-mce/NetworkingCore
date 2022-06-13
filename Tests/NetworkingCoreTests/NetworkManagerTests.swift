@@ -64,6 +64,18 @@ final class NetworkManagerTests: XCTestCase {
         }
     }
 
+    func test_Request_UsesMethod() async throws {
+        // given
+        let method = HTTPMethod.patch
+
+        // when
+        _ = try await sut.request(path: "", method: method)
+
+        // then
+        XCTAssertEqual(mockSession.invokedDataCount, 1)
+        XCTAssertEqual(mockSession.invokedDataParameters?.0.httpMethod, method.rawValue)
+    }
+
     func test_Request_AppliesGlobalPlugins() async throws {
         // given
         let header = "\(#line)"
@@ -82,7 +94,7 @@ final class NetworkManagerTests: XCTestCase {
 
     func test_Request_AppliesLocalPlugins() async throws {
         // given
-        let method = "POST"
+        let method = "Local"
         var plugins = PluginCollection<URLRequest>()
         plugins.addModifier { request in
             request.httpMethod = method
