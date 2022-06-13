@@ -1,6 +1,5 @@
 //
 //  NetworkManagerTests.swift
-//  brightwheelExerciseTests
 //
 //  Created by Dillon McElhinney on 6/11/22.
 //

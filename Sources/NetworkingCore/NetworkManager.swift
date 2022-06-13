@@ -1,6 +1,5 @@
 //
 //  NetworkManager.swift
-//  brightwheelExercise
 //
 //  Created by Dillon McElhinney on 6/10/22.
 //
@@ -45,7 +44,6 @@ public class NetworkManager {
         }
         let rawRequest = URLRequest(url: requestURL)
         let request = requestPlugins.combining(globalRequestPlugins).apply(to: rawRequest)
-        print(request)
         let (data, _) = try await session.data(for: request)
         return data
     }
