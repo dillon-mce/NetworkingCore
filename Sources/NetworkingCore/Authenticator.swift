@@ -31,7 +31,17 @@ public class Authenticator: NSObject {
             })
 
         authSession?.presentationContextProvider = self
-        authSession?.start()
+        DispatchQueue.main.async { [weak authSession] in
+            authSession?.start()
+        }
+    }
+
+    public func authenticate(with parameters: [String: String]) async throws -> URL {
+        try await withCheckedThrowingContinuation{ continuation in
+            authenticate(with: parameters) { result in
+                continuation.resume(with: result)
+            }
+        }
     }
 }
 
