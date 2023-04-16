@@ -38,7 +38,7 @@ public class NetworkManager {
     ///   - parameters: Query parameters to apply to the request
     ///   - method: HTTP Method to use for the request
     ///   - requestPlugins: A collection of plugins to apply to the request before it is made.
-    /// - Returns: The raw data returned from the request
+    /// - Returns: A `Response` object which wraps the data and http response returned from the request
     public func request(path: String,
                         parameters: [String: String] = [:],
                         method: HTTPMethod = .get,
@@ -64,12 +64,15 @@ public class NetworkManager {
 }
 
 public extension NetworkManager.Plugins {
+
+    /// Creates a plugin collection whose first modifier adds the given `data` as the body of the request.
     static func body(_ data: Data?) -> Self {
         var plugins = Self()
         plugins.with(body: data)
         return plugins
     }
 
+    /// Adds a modifier to the collection which adds the given `data` as the body of the request.
     mutating func with(body data: Data?) {
         addModifier { request in
             request.httpBody = data
