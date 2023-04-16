@@ -40,7 +40,7 @@ public class NetworkManager {
     public func request(path: String,
                         parameters: [String: String] = [:],
                         method: HTTPMethod = .get,
-                        plugins requestPlugins: PluginCollection<URLRequest> = .init()) async throws -> Data {
+                        plugins requestPlugins: PluginCollection<URLRequest> = .init()) async throws -> Response {
         guard let requestURL = baseURL.appendingPathComponent(path).with(parameters: parameters) else {
             throw Error.invalidURLComponents
         }
@@ -48,11 +48,15 @@ public class NetworkManager {
         var plugins = globalRequestPlugins
         plugins.addModifier { $0.httpMethod = method.rawValue }
         let request = plugins.combining(requestPlugins).apply(to: rawRequest)
-        let (data, _) = try await session.data(for: request)
-        return data
+        let (data, response) = try await session.data(for: request)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw Error.invalidResponse
+        }
+        return Response(data: data, httpResponse: httpResponse)
     }
 
     enum Error: Swift.Error {
         case invalidURLComponents
+        case invalidResponse
     }
 }
