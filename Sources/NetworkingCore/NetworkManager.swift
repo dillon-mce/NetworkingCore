@@ -19,6 +19,8 @@ extension URLSessionInterface {
 extension URLSession: URLSessionInterface {}
 
 public class NetworkManager {
+    public typealias Plugins = PluginCollection<URLRequest>
+
     let baseURL: URL
     private let session: URLSessionInterface
 
@@ -28,7 +30,7 @@ public class NetworkManager {
     }
 
     /// The plugins to apply to every request this manager makes
-    public var globalRequestPlugins = PluginCollection<URLRequest>()
+    public var globalRequestPlugins = Plugins()
 
     /// Make a request with the given path appended to the base url.
     /// - Parameters:
@@ -40,7 +42,7 @@ public class NetworkManager {
     public func request(path: String,
                         parameters: [String: String] = [:],
                         method: HTTPMethod = .get,
-                        plugins requestPlugins: PluginCollection<URLRequest> = .init()) async throws -> Response {
+                        plugins requestPlugins: Plugins = .init()) async throws -> Response {
         guard let requestURL = baseURL.appendingPathComponent(path).with(parameters: parameters) else {
             throw Error.invalidURLComponents
         }
@@ -58,5 +60,19 @@ public class NetworkManager {
     enum Error: Swift.Error {
         case invalidURLComponents
         case invalidResponse
+    }
+}
+
+public extension NetworkManager.Plugins {
+    static func body(_ data: Data?) -> Self {
+        var plugins = Self()
+        plugins.with(body: data)
+        return plugins
+    }
+
+    mutating func with(body data: Data?) {
+        addModifier { request in
+            request.httpBody = data
+        }
     }
 }
